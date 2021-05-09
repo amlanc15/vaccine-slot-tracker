@@ -98,7 +98,7 @@ async function delay(time) {
 
 function parseResp(availableCenters, pinNo) {
     const availableArray = parseCenters(availableCenters);
-    if (availableArray.length > 0) {
+    if (availableArray.length >= 0) {
         console.log("Available Slots->", availableArray);
         openUrl.open("https://selfregistration.cowin.gov.in/");
         bot.sendMessage(1888901255, `Slot Details at ${pinNo}-> ${JSON.stringify(availableArray)}`);
@@ -110,7 +110,7 @@ function parseCenters(availableCenters) {
     const availableArray = [];
     availableCenters.centers.forEach((availableCenter) => {
         availableCenter.sessions.forEach((session) => {
-            if (session.available_capacity > 0) {
+            if (session.available_capacity >= 0) {
                 const availableObj = {
                     available_capacity: session.available_capacity,
                     date: session.date,
