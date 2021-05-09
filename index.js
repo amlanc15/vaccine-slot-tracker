@@ -77,7 +77,14 @@ async function startQuering() {
 async function getVaccineInfo() {
     try {
         const resp = await getRequestedData(pinCode);
-        parseResp(JSON.parse(resp));
+        parseResp(JSON.parse(resp), pinCode);
+    } catch (error) {
+        console.error("Some Error Occured. Skipping this iteration", error);
+    }
+
+    try {
+        const resp = await getRequestedData("722155");
+        parseResp(JSON.parse(resp), "722155");
     } catch (error) {
         console.error("Some Error Occured. Skipping this iteration", error);
     }
@@ -89,14 +96,14 @@ async function delay(time) {
     });
 } 
 
-function parseResp(availableCenters) {
+function parseResp(availableCenters, pinNo) {
     const availableArray = parseCenters(availableCenters);
     if (availableArray.length > 0) {
         console.log("Available Slots->", availableArray);
         openUrl.open("https://selfregistration.cowin.gov.in/");
-        bot.sendMessage(1888901255, `Slot Details -> ${JSON.stringify(availableArray)}`);
+        bot.sendMessage(1888901255, `Slot Details at ${pinNo}-> ${JSON.stringify(availableArray)}`);
     } else {
-        console.log("Sorry No Slots available in", pinCode, "at", new Date().toDateString(), new Date().toLocaleTimeString());
+        console.log("Sorry No Slots available in", pinNo, "at", new Date().toDateString(), new Date().toLocaleTimeString());
     }
 }
 function parseCenters(availableCenters) {
