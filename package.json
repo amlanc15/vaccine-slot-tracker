@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "node .",
-    "win:installler": "nexe index.js -o Vaccine-Slot-Tracker.exe"
+    "win:installer": "nexe index.js -o Vaccine-Slot-Tracker.exe"
   },
   "keywords": [],
   "license": "ISC",
