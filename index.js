@@ -9,19 +9,19 @@ console.log("========================== Welcome to Vaccine Slot Tracker ========
 console.log("==== Developed By -> Amlan Chakrabarty || Email -> Amlan.Chakrabarty15@gmail.com ====");
 console.log("========== For Best Result Please provide your area pin in Input.JSON file ===========")
 
-function readInputFile() {
-    let fileInput = null;
-    try {
-        fileInput = JSON.parse(fs.readFileSync("input.json").toString());
-    } catch (error) {
-        console.error("Error while reading inputFile", error);
-    }
-    return fileInput;
-}
-const fileContent = readInputFile();
-const pinCode = fileContent && fileContent.pinCode ? fileContent.pinCode : 722155;
-let reqInterVal = fileContent && fileContent.requestInterval ? fileContent.requestInterval : 15;
-const token = fileContent.telegramBotToken;
+// function readInputFile() {
+//     let fileInput = null;
+//     try {
+//         fileInput = JSON.parse(fs.readFileSync("input.json").toString());
+//     } catch (error) {
+//         console.error("Error while reading inputFile", error);
+//     }
+//     return fileInput;
+// }
+// const fileContent = readInputFile();
+const pinCode = "722101";
+let reqInterVal = 15;
+const token = "1846168441:AAGN3xEBYVBgCWTehALyXUTdtPc1Sstsirg";
 
 // Create a bot that uses 'polling' to fetch new updates
 const bot = new TelegramBot(token, {polling: true});
@@ -100,7 +100,7 @@ function parseResp(availableCenters, pinNo) {
     const availableArray = parseCenters(availableCenters);
     if (availableArray.length > 0) {
         console.log("Available Slots->", availableArray);
-        openUrl.open("https://selfregistration.cowin.gov.in/");
+        // openUrl.open("https://selfregistration.cowin.gov.in/");
         bot.sendMessage(1888901255, `Slot Details at ${pinNo}-> ${JSON.stringify(availableArray)}`);
     } else {
         console.log("Sorry No Slots available in", pinNo, "at", new Date().toDateString(), new Date().toLocaleTimeString());
