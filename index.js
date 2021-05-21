@@ -58,7 +58,7 @@ function getRequestedData(pin) {
     return new Promise((resolve, reject) => {
         https.get(actualURL, (res) => {          
             res.on('data', (d) => {
-                // console.log("Data ->", d.toString());
+                console.log("Data ->", d.toString());
                 return resolve(d.toString());
             });
           
