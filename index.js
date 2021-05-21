@@ -110,7 +110,7 @@ function parseCenters(availableCenters) {
     const availableArray = [];
     availableCenters.centers.forEach((availableCenter) => {
         availableCenter.sessions.forEach((session) => {
-            if (session.available_capacity > 0) {
+            if (session.available_capacity_dose1 > 0) {
                 const availableObj = {
                     available_capacity: session.available_capacity,
                     date: session.date,
