@@ -15,8 +15,8 @@
   "license": "ISC",
   "dependencies": {
     "dateformat": "^4.5.1",
-    "node-telegram-bot-api": "^0.53.0",
-    "openurl": "^1.1.1"
+    "openurl": "^1.1.1",
+    "telegraf": "^4.3.0"
   },
   "devDependencies": {
     "nexe": "3.3.7"

@@ -3,7 +3,7 @@ const https = require("https");
 const openUrl = require("openurl");
 const util = require("util");
 const fs = require("fs");
-const TelegramBot = require('node-telegram-bot-api');
+const TelegramBot = require('telegraf');
 
 console.log("========================== Welcome to Vaccine Slot Tracker ==========================");
 console.log("==== Developed By -> Amlan Chakrabarty || Email -> Amlan.Chakrabarty15@gmail.com ====");
@@ -24,17 +24,19 @@ let reqInterVal = fileContent.requestInterval;
 const token = "1846168441:AAGN3xEBYVBgCWTehALyXUTdtPc1Sstsirg";
 
 // Create a bot that uses 'polling' to fetch new updates
-const bot = new TelegramBot(token, {polling: true});
+const bot = new TelegramBot.Telegraf(token);
+bot.launch();
 const chatIds = [1888901255];
 
-bot.on('message', (msg) => {
-    chatId.push(msg.chat.id);
-    getRequestedData(msg.text).then((resp) => {
+bot.on('text', (msg) => {
+    // Explicit usage
+    chatIds.push(msg.message.chat.id);
+    getRequestedData(msg.message.text).then((resp) => {
         const availableMsg = parseCenters(JSON.parse(resp));
-        const statusMsg = availableMsg && availableMsg.length > 0 ? `${constructTheUserReadAbleMsg(availableMsg, msg.text)}` : `Sorry No slots at ${msg.text}`;
-        bot.sendMessage(chatId, statusMsg);
+        const statusMsg = availableMsg && availableMsg.length > 0 ? `${constructTheUserReadAbleMsg(availableMsg, msg.message.text)}` : `Sorry ${msg.message.chat.first_name}!! No slots at ${msg.message.text} 😔😔`;
+        msg.telegram.sendMessage(msg.message.chat.id, statusMsg);
     }).catch(() => {
-        bot.sendMessage(chatId, 'Fail to get details');
+        msg.telegram.sendMessage(msg.message.chat.id, `Sorry ${msg.message.chat.first_name} !! Failed to Get Details 😌😌`);
     });
     // send a message to the chat acknowledging receipt of their message
    
@@ -92,7 +94,7 @@ function parseResp(availableCenters, pinNo) {
         openUrl.open("https://selfregistration.cowin.gov.in");
         let constructMsg = constructTheUserReadAbleMsg(availableMsgs, pinNo);
         chatIds.forEach((chatId) => {
-            bot.sendMessage(chatId, constructMsg);
+            bot.telegram.sendMessage(chatId, constructMsg);
         });
     } else {
         console.log("Sorry No Slots available in", pinNo, "at", new Date().toDateString(), new Date().toLocaleTimeString());
