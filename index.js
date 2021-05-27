@@ -9,32 +9,29 @@ console.log("========================== Welcome to Vaccine Slot Tracker ========
 console.log("==== Developed By -> Amlan Chakrabarty || Email -> Amlan.Chakrabarty15@gmail.com ====");
 console.log("========== For Best Result Please provide your area pin in Input.JSON file ===========")
 
-// function readInputFile() {
-//     let fileInput = null;
-//     try {
-//         fileInput = JSON.parse(fs.readFileSync("input.json").toString());
-//     } catch (error) {
-//         console.error("Error while reading inputFile", error);
-//     }
-//     return fileInput;
-// }
-// const fileContent = readInputFile();
-const pinCode = "722101";
-let reqInterVal = 15;
+function readInputFile() {
+    let fileInput = null;
+    try {
+        fileInput = JSON.parse(fs.readFileSync("input.json").toString());
+    } catch (error) {
+        console.error("Error while reading inputFile", error);
+    }
+    return fileInput;
+}
+const fileContent = readInputFile();
+const pinCode = fileContent.pinCode;
+let reqInterVal = fileContent.requestInterval;
 const token = "1846168441:AAGN3xEBYVBgCWTehALyXUTdtPc1Sstsirg";
 
 // Create a bot that uses 'polling' to fetch new updates
 const bot = new TelegramBot(token, {polling: true});
-let chatId = null;
+const chatIds = [1888901255];
 
 bot.on('message', (msg) => {
-    chatId = msg.chat.id;
-    // console.log("Msg ->", msg.text);
-  
+    chatId.push(msg.chat.id);
     getRequestedData(msg.text).then((resp) => {
-        // console.log("Resp ->", resp);
-        const availableCenters = parseCenters(JSON.parse(resp));
-        const statusMsg = availableCenters && availableCenters.length > 0 ? `Slots available in ${msg.text}` : `Sorry No slots at ${msg.text}`;
+        const availableMsg = parseCenters(JSON.parse(resp));
+        const statusMsg = availableMsg && availableMsg.length > 0 ? `${constructTheUserReadAbleMsg(availableMsg, msg.text)}` : `Sorry No slots at ${msg.text}`;
         bot.sendMessage(chatId, statusMsg);
     }).catch(() => {
         bot.sendMessage(chatId, 'Fail to get details');
@@ -58,7 +55,6 @@ function getRequestedData(pin) {
     return new Promise((resolve, reject) => {
         https.get(actualURL, (res) => {          
             res.on('data', (d) => {
-                console.log("Data ->", d.toString());
                 return resolve(d.toString());
             });
           
@@ -81,13 +77,6 @@ async function getVaccineInfo() {
     } catch (error) {
         console.error("Some Error Occured. Skipping this iteration", error);
     }
-
-    try {
-        const resp = await getRequestedData("722155");
-        parseResp(JSON.parse(resp), "722155");
-    } catch (error) {
-        console.error("Some Error Occured. Skipping this iteration", error);
-    }
 }
 
 async function delay(time) {
@@ -97,30 +86,37 @@ async function delay(time) {
 } 
 
 function parseResp(availableCenters, pinNo) {
-    const availableArray = parseCenters(availableCenters);
-    if (availableArray.length > 0) {
-        console.log("Available Slots->", availableArray);
-        // openUrl.open("https://selfregistration.cowin.gov.in/");
-        bot.sendMessage(1888901255, `Slot Details at ${pinNo}-> ${JSON.stringify(availableArray)}`);
+    const availableMsgs = parseCenters(availableCenters);
+    if (availableMsgs.length > 0) {
+        console.log("Available Slots for", pinNo, " ->",availableMsgs.join("\n"));
+        openUrl.open("https://selfregistration.cowin.gov.in");
+        let constructMsg = constructTheUserReadAbleMsg(availableMsgs, pinNo);
+        chatIds.forEach((chatId) => {
+            bot.sendMessage(chatId, constructMsg);
+        });
     } else {
         console.log("Sorry No Slots available in", pinNo, "at", new Date().toDateString(), new Date().toLocaleTimeString());
     }
 }
+function constructTheUserReadAbleMsg(availableMsgs, pin) {
+    let constructMsg = `Hello Vaccines are available in following Locations for PinNo ${pin}.\n`;
+    availableMsgs.forEach((msg, index) => {
+        constructMsg = constructMsg + `     ${index + 1}. ${msg}. \n`;
+    });
+    return constructMsg;
+}
+
 function parseCenters(availableCenters) {
-    const availableArray = [];
+    const availableMsg = [];
     availableCenters.centers.forEach((availableCenter) => {
         availableCenter.sessions.forEach((session) => {
             if (session.available_capacity_dose1 > 0) {
-                const availableObj = {
-                    available_capacity: session.available_capacity,
-                    date: session.date,
-                    minAgeLimit: session.min_age_limit,
-                    vaccineType: session.vaccine,
-                    place: availableCenter.name
-                };
-                availableArray.push(availableObj);
+                const msgDetails = `Hello in ${availableCenter.address} vaccines are available for minimum age limt ${session.min_age_limit}. ` +
+                `Date -> ${session.date} || Total Available -> ${session.available_capacity} || ` +
+                `Available for Dose 1 -> ${session.available_capacity_dose1} || Available for Dose 2 -> ${session.available_capacity_dose2}. Book ASAP`;
+                availableMsg.push(msgDetails)
             }
         });
     });
-    return availableArray;
+    return availableMsg;
 }
